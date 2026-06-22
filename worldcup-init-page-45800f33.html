@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+  <title>世界杯 · 再访笔记</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background: #f5f9fc;
+      color: #1a2a33;
+      line-height: 1.6;
+      padding: 2rem 1.2rem;
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* 网格卡片背景 (非侵入式) */
+    .grid-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background-image: 
+        linear-gradient(rgba(0, 168, 150, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 168, 150, 0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    /* 文章卡片 */
+    .article-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 2.4rem 1.8rem;
+      box-shadow: 0 8px 30px rgba(0, 80, 70, 0.08);
+      margin-bottom: 2.4rem;
+      border: 1px solid rgba(0, 168, 150, 0.2);
+      transition: box-shadow 0.2s;
+    }
+
+    .article-card:hover {
+      box-shadow: 0 12px 36px rgba(0, 110, 100, 0.12);
+    }
+
+    /* 标题 & 元信息 */
+    .post-title {
+      font-size: 1.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      margin-bottom: 0.3rem;
+      color: #0b2b2b;
+    }
+
+    .post-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 1.2rem;
+      font-size: 0.85rem;
+      color: #4f6d73;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #deeceb;
+      padding-bottom: 1rem;
+    }
+
+    .post-meta span {
+      background: #e9f3f1;
+      padding: 0.15rem 0.9rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      color: #19665c;
+    }
+
+    .post-meta i {
+      font-style: normal;
+      color: #2f7a6e;
+    }
+
+    /* 导语 */
+    .lead {
+      font-size: 1.12rem;
+      font-weight: 400;
+      color: #1c3f3f;
+      background: #f1f9f7;
+      padding: 1rem 1.2rem;
+      border-radius: 20px;
+      margin-bottom: 1.8rem;
+      border-left: 4px solid #00a896;
+      line-height: 1.5;
+    }
+
+    /* 正文段落 */
+    p {
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      color: #1f3338;
+    }
+
+    .text-em {
+      color: #006b5e;
+      font-weight: 500;
+    }
+
+    /* 引用提示 */
+    .blockquote-tip {
+      background: #eef7f5;
+      border-radius: 20px;
+      padding: 1.2rem 1.6rem;
+      margin: 1.8rem 0;
+      font-size: 0.98rem;
+      color: #1d4d45;
+      border: 1px solid #b7dfd9;
+      box-shadow: 0 2px 6px rgba(0,128,107,0.06);
+      position: relative;
+    }
+
+    .blockquote-tip::before {
+      content: "📌";
+      margin-right: 0.6rem;
+      font-size: 1.2rem;
+    }
+
+    .blockquote-tip strong {
+      color: #004d40;
+    }
+
+    /* 特点小卡片 (网格) */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.8rem 0 1.2rem;
+    }
+
+    .feature-item {
+      background: #f5fcfb;
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      border: 1px solid #cae4df;
+      transition: all 0.15s;
+    }
+
+    .feature-item:hover {
+      background: #e7f6f2;
+      border-color: #6db8ae;
+    }
+
+    .feature-item h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0e4b41;
+      margin-bottom: 0.2rem;
+    }
+
+    .feature-item p {
+      font-size: 0.9rem;
+      color: #2f5c55;
+      margin-bottom: 0;
+    }
+
+    /* 情景提示 (简洁列表) */
+    .scenario-list {
+      list-style: none;
+      margin: 1.5rem 0 1.8rem;
+    }
+
+    .scenario-list li {
+      padding: 0.7rem 0 0.7rem 2rem;
+      position: relative;
+      border-bottom: 1px dashed #cde0dc;
+      font-size: 0.95rem;
+    }
+
+    .scenario-list li::before {
+      content: "▹";
+      position: absolute;
+      left: 0.2rem;
+      color: #00a896;
+      font-weight: bold;
+    }
+
+    .scenario-list li:last-child {
+      border-bottom: none;
+    }
+
+    /* 链接样式（内嵌） */
+    a {
+      color: #006f60;
+      text-decoration: none;
+      border-bottom: 1px solid #9acfc5;
+      font-weight: 500;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    a:hover {
+      color: #003d33;
+      border-bottom-color: #004d40;
+    }
+
+    /* 收藏夹式按钮 (非链接) */
+    .bookmark-note {
+      background: #ffffff;
+      border-radius: 60px;
+      padding: 0.6rem 1.4rem;
+      display: inline-block;
+      border: 1px solid #00a896;
+      color: #006b5a;
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+      box-shadow: 0 2px 6px rgba(0,168,150,0.1);
+    }
+
+    .bookmark-note i {
+      font-style: normal;
+      margin-right: 0.3rem;
+    }
+
+    /* FAQ 摘要 (一句话) */
+    .faq-mini {
+      margin-top: 2rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid #d4e7e2;
+    }
+
+    .faq-mini details {
+      margin-bottom: 0.6rem;
+    }
+
+    .faq-mini summary {
+      font-weight: 500;
+      color: #0f5549;
+      cursor: pointer;
+      padding: 0.4rem 0;
+      font-size: 0.95rem;
+      border-bottom: 1px dotted #b5d3cc;
+    }
+
+    .faq-mini details p {
+      margin: 0.5rem 0 0.8rem 0.8rem;
+      font-size: 0.9rem;
+      color: #2a5850;
+    }
+
+    /* 访问句 (footer) */
+    .access-sentence {
+      margin-top: 2.6rem;
+      padding: 1.2rem 0 0.2rem;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #3c6d64;
+      border-top: 1px solid #cfdfdb;
+    }
+
+    .access-sentence a {
+      font-weight: 600;
+    }
+
+    /* 响应式 */
+    @media (max-width: 540px) {
+      body {
+        padding: 1.2rem 0.8rem;
+      }
+      .article-card {
+        padding: 1.6rem 1.2rem;
+      }
+      .post-title {
+        font-size: 1.6rem;
+      }
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+      .lead {
+        font-size: 1rem;
+        padding: 0.9rem 1rem;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .post-title {
+        font-size: 2.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="page">
+
+    <!-- 主文章卡片 -->
+    <article class="article-card">
+
+      <h1 class="post-title">再访 · 世界杯信息站</h1>
+
+      <div class="post-meta">
+        <span>📋 持续关注</span>
+        <span>🔖 收藏编号 · 75d4</span>
+        <span><i>更新于最近赛事周期</i></span>
+      </div>
+
+      <div class="lead">
+        赛事资讯与官方动态并不总在同一个入口。对于长期关注世界杯的球迷与从业者，重复访问与信息沉淀同样重要。
+      </div>
+
+      <p>
+        随着各大洲预选赛推进，<strong class="text-em">赛程、主办城市、票务阶段</strong>等内容在官方网站上逐步释放。但网站结构可能随赛季迭代，部分页面路径发生变化。因此，将核心地址固定于书签，并在每次大赛周期前主动回访，是获取一手信息的可靠习惯。
+      </p>
+
+      <p>
+        很多用户习惯通过搜索引擎跳转，却忽略了直接访问官方信息源的价值。其实，<a href="https://worldcup-init-fifa.com">世界杯</a>的官方信息聚合页面始终保持简洁清晰的索引结构，适合作为每次关注周期的起点。只需将这一地址加入收藏夹，即可在赛事节点快速抵达最新公告与赛事数据。
+      </p>
+
+      <!-- 引用提示 -->
+      <div class="blockquote-tip">
+        <strong>提示</strong> · 收藏页面后，可定期查看「新闻」「赛事」及「主办方更新」栏目。许多重要通知仅在官网首发，聚合平台常有延迟。
+      </div>
+
+      <!-- 特点网格卡片 -->
+      <div class="feature-grid">
+        <div class="feature-item">
+          <h4>📆 赛程索引</h4>
+          <p>小组赛至决赛日历，支持本地时区切换，便于提前规划观赛。</p>
+        </div>
+        <div class="feature-item">
+          <h4>🏟️ 场馆详解</h4>
+          <p>每个体育场的容量、交通与历史数据集中呈现，适合深度浏览。</p>
+        </div>
+        <div class="feature-item">
+          <h4>📋 资格体系</h4>
+          <p>各大洲晋级规则与已确定球队名单，信息颗粒度高于多数摘要平台。</p>
+        </div>
+        <div class="feature-item">
+          <h4>🔐 票务阶段</h4>
+          <p>官方售票窗口与抽签时间表，避免错过申请截止日期。</p>
+        </div>
+      </div>
+
+      <!-- 场景提示 · 从再次访问角度 -->
+      <h3 style="font-size: 1.2rem; margin-top: 1.2rem; color: #004942;">适合回访的场景</h3>
+      <ul class="scenario-list">
+        <li>预选赛关键轮次结束后，确认出线球队与附加赛对阵</li>
+        <li>主办方发布吉祥物、官方歌曲或视觉标识更新时</li>
+        <li>个人收藏夹整理：将原先分散的信息源替换为官方统一入口</li>
+        <li>赛前两周：确认小组赛开球时间与球场微调通知</li>
+      </ul>
+
+      <!-- FAQ 摘要 (简洁) -->
+      <div class="faq-mini">
+        <details>
+          <summary>❓ 为何建议直接收藏官网而非第三方平台？</summary>
+          <p>官方信息无中间延迟，且历史公告、规则文档完整保留。第三方聚合往往只展示摘要，容易遗漏条款变更。</p>
+        </details>
+        <details>
+          <summary>📌 页面变动后如何快速定位内容？</summary>
+          <p>使用站内搜索（通常位于页面顶部）或导航菜单中的「新闻中心」「赛事」板块。部分页面更新后仍保留旧版归档。</p>
+        </details>
+      </div>
+
+      <!-- 自然的嵌入访问句 -->
+      <div class="access-sentence">
+        <span>若你计划长期跟踪赛事动态，不妨将 </span>
+        <a href="https://worldcup-init-fifa.com">世界杯</a>
+        <span> 加入浏览器书签栏。每次赛季更迭，它都是可靠的信息锚点。</span>
+      </div>
+
+    </article>
+
+    <!-- 微装饰：收藏提示 (非链接) -->
+    <div style="text-align: right; margin-top: -0.8rem; margin-bottom: 1rem;">
+      <span class="bookmark-note"><i>🔖</i> 已收藏 · 持续同步</span>
+    </div>
+
+  </div>
+</body>
+</html>
